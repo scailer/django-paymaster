@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from distutils import setup, find_packages
+from distutils.core import setup
 
 for cmd in ('egg_info', 'develop'):
     import sys
@@ -17,13 +17,8 @@ setup(
     author='Dmitriy Vlasov',
     author_email='scailer@russia.ru',
 
-    packages=find_packages(
-        exclude = [
-            'testproject',
-            'testproject.test_app',
-            'paymaster.tests',
-        ],
-    ),
+    packages=['paymaster', 'paymaster.migrations', 'paymaster.templates'],
+    package_data={'paymaster': ['templates/paymaster/*.html']}
 
     url='https://github.com/scailer/django-paymaster/',
     license = 'MIT license',

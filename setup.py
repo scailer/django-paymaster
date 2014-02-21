@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from distutils.core import setup, find_packages
+from distutils import setup, find_packages
 
 for cmd in ('egg_info', 'develop'):
     import sys

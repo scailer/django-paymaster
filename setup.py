@@ -17,7 +17,7 @@ setup(
     author='Dmitriy Vlasov',
     author_email='scailer@russia.ru',
 
-    packages=['paymaster', 'paymaster.migrations', 'paymaster.templates'],
+    packages=['paymaster'],
     include_package_data=True,
 
     url='https://github.com/scailer/django-paymaster/',

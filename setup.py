@@ -17,19 +17,26 @@ setup(
     author='Dmitriy Vlasov',
     author_email='scailer@russia.ru',
 
-    packages=['paymaster'], #'paymaster.migrations', 'paymaster.templates'],
     include_package_data=True,
-    package_data={'paymaster': ['migrations/*.py', 'templates/paymaster/*.html']},
+    packages=['paymaster'],
+    package_data={
+        'paymaster': ['migrations/*.py', 'templates/paymaster/*.html']
+    },
 
     url='https://github.com/scailer/django-paymaster/',
-    license = 'MIT license',
-    description = u'Приложение для интеграции платежной системы PayMaster в проекты на Django.'.encode('utf8'),
-    long_description = open('README.md').read().decode('utf8') + u"\n\n" + open('CHANGES.md').read().decode('utf8'),
+    license='MIT license',
+    description=(u'Application for integration PayMaster payment '
+                 u'system in Django projects').encode('utf8'),
+    long_description=(
+        u'Приложение для интеграции платежной системы PayMaster '
+        u'(http://paymaster.ru/) в проекты на Django. Реализовано '
+        u'только основное API PayMaster, согласно спецификации'
+        u'https://paymaster.ru/Partners/ru/docs/protocol').encode('utf8'),
 
     requires=['django (>= 1.5)', 'pytz'],
 
     classifiers=(
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',
         'Framework :: Django',
         'Intended Audience :: Developers',

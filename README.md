@@ -43,7 +43,7 @@ PAYMASTER_PASSWORD = '1234567890abcdef'
 
 Маска описания платежа, где payer - django-пользователь, number - номер платежа.
 ```python
-PAYMASTER_DESCRIPTION_MASK = u'Пополнение баланса для пользователя {payer.email} [{number}]'
+PAYMASTER_DESCRIPTION_MASK = u'Платеж пользователя {payer.email} [{number}]'
 ```
 
 

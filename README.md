@@ -39,6 +39,7 @@ PAYMASTER_MERCHANT_ID = '11112222-3333-4444-5555-666677778888'
 Пароль сайта в системе PayMaster.
 ```python
 PAYMASTER_PASSWORD = '1234567890abcdef'
+```
 
 Маска описания платежа, где payer - django-пользователь, number - номер платежа.
 ```python

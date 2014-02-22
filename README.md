@@ -29,73 +29,103 @@ PAYMASTER_MERCHANT_ID = '11112222-3333-4444-5555-666677778888'
 
 ## Настройки ##
 
-*Обязательные настройки*
+**Обязательные настройки**
 
 Идентификатор сайта в системе PayMaster. Идентификатор можно увидеть в Личном Кабинете, на странице "Список сайтов", в первой колонке.
+```python
 PAYMASTER_MERCHANT_ID = '11112222-3333-4444-5555-666677778888'
+```
 
 Пароль сайта в системе PayMaster.
+```python
 PAYMASTER_PASSWORD = '1234567890abcdef'
 
 Маска описания платежа, где payer - django-пользователь, number - номер платежа.
+```python
 PAYMASTER_DESCRIPTION_MASK = u'Пополнение баланса для пользователя {payer.email} [{number}]'
+```
 
 
-*Финансовые параметры*
+**Финансовые параметры**
 
 Идентификатор валюты платежа, принимаемой продавцом.
+```python
 PAYMASTER_MERCHANT_CURRENCY = 'RUB', 'EUR'
+```
 
 Идентификатор платежного метода, выбранный по умолчанию.
+```python
 PAYMASTER_DEFAULT_PAYMENT_METHOD = 'WebMoney'
+```
 
 
-*Безопасность*
+**Безопасность**
 
 Метод хеширования указанный в настройках
+```python
 PAYMASTER_HASH_METHOD = 'md5', 'sha1', 'sha256'
+```
 
 Список полей для хеширования
+```python
 HASH_FIELDS = (
     'LMI_MERCHANT_ID', 'LMI_PAYMENT_NO', 'LMI_SYS_PAYMENT_ID',
     'LMI_SYS_PAYMENT_DATE', 'LMI_PAYMENT_AMOUNT', 'LMI_CURRENCY',
     'LMI_PAID_AMOUNT', 'LMI_PAID_CURRENCY', 'LMI_PAYMENT_SYSTEM',
     'LMI_SIM_MODE'
 )
+```
 
 
-*Тестирование*
+**Тестирование**
 
 Дополнительное поле, определяющее режим тестирования.
+```python
 PAYMASTER_SIM_MODE = 0, 1, 2
+```
 
 Ссылка для инициации платежа.
+```python
 PAYMASTER_INIT_URL = 'https://paymaster.ru/Payment/Init'
+```
 
 Если присутствует, то запрос Invoice Confirmation будет отправляться по указанному URL (а не установленному в настройках).
+```python
 PAYMASTER_INVOICE_CONFIRMATION_URL = 'http://myhost.ru/paymaster/confirm/'
+```
 
 Если присутствует, то запрос Payment Notification будет отправляться по указанному URL (а не установленному в настройках).
+```python
 PAYMASTER_PAYMENT_NOTIFICATION_URL = 'http://myhost.ru/paymaster/notification/'
+```
 
 Если присутствует, то при успешном платеже пользователь будет отправлен по указанному URL (а не установленному в настройках).
+```python
 PAYMASTER_SUCCESS_URL = 'http://myhost.ru/paymaster/success/'
+```
 
 Если присутствует, то при отмене платежа пользователь будет отправлен по указанному URL (а не установленному в настройках).
+```python
 PAYMASTER_FAILURE_URL = 'http://myhost.ru/paymaster/fail/'
+```
 
 
-*Дополнительные настройки*
+**Дополнительные настройки**
 
 Атрибут объекта django-пользователя в котором содержиться номер телефона
+```python
 PAYMASTER_USER_PHONE_FIELD = 'phone'
+```
 
 Атрибут объекта django-пользователя в котором содержиться эл. почта
+```python
 PAYMASTER_USER_EMAIL_FIELD = 'email'
+```
 
 Внешний идентификатор магазина, передаваемый интегратором в платежную систему.
+```python
 PAYMASTER_SHOP_ID = '123456'
-
+```
 
 ## Сигналы ##
 

@@ -1,5 +1,14 @@
 # -*- coding: utf-8 -*-
 
+"""
+    Обработчики запросов для взаимодействия с API PayMaster
+    https://paymaster.ru/Partners/ru/docs/protocol
+
+    @author: Vlasov Dmitry
+    @contact: scailer@russia.ru
+    @status: stable
+"""
+
 import base64
 import urllib
 import hashlib

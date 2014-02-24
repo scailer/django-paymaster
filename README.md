@@ -214,6 +214,29 @@ def _fail(sender, invoice, **kwargs):
 ```
 
 
+## Шаблоны ##
+
+**`paymaster/init.html`**
+
+Шаблон формы платежа, форма в контексте под именем "form".
+
+```html
+<form action="{% url "paymaster:init" %}" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Send" />
+</form>
+```
+
+**`paymaster/success.html`**
+
+Шаблон уведобления об успешном платеже.
+
+**`paymaster/.html`**
+
+Шаблон уведобления о неудачном платеже.
+
+
 ## Кастомизация ##
 
 ```python
@@ -227,31 +250,65 @@ choices = (('WebMaster', 'WebMaster'),)
 class CustomForm(forms.Form):
     payment_method = forms.CharField(
         label=u'Плетежная система', choices=choices)
-    amount = forms.DecimalField(
+    amount_value = forms.DecimalField(
         label=u'Сумма', min_value=10, required=True)
 
 
 class CustomInitialView(views.InitialView):
     def get_payer(self):
+        # Плательщик, как правило текущий пользователь.
+        # Используется для получения информации о телефоне 
+        # и электронной почте плательщика, а так же передается
+        # в строку-шаблон назначения платежа
         return self.request.user
 
     def get_description(self, form):
+        # Назначение платежа, по умолчанию формируется по шаблону 
+        # настройках проекта PAYMASTER_DESCRIPTION_MASK
+        # Внимание: В соответствии с условиями договора c PayMaster, 
+        # назначение платежа должно быть детализированным: следует 
+        # указывать название конкретной предоставляемой услуги, 
+        # номер лицевого (торгового) счета или аналогичную информацию, 
+        # позволяющую установить оказываемую услугу или 
+        # предоставляемый товар. LMI_PAYMENT_DESC (не более 255 символов)
         return u'Новое описание'
 
     def get_payer_phone(self, form):
+        # Номер телефона плательщика в цифровом формате
+        # LMI_PAYER_PHONE_NUMBER
         return u'89091239876'
 
     def get_payer_email(self, form):
+        # Email плательщика LMI_PAYER_EMAIL
         return u'mail@mail.ru'
 
     def get_payment_method(self, form):
+        # Идентификатор платежного метода, выбранный 
+        # пользователем. LMI_PAYMENT_METHOD
         return form.data.get('payment_method')
+
+    # Аналогичным образом могут быть переопределены 
+    # get_amount - сумма платежа, 
+    # get_paymant_no - номер платежа,
+    # get_extra_params - дата истечения актуальности счета
 
 
 urlpatterns = patterns('',
     url(r'^init/', views.CustomInitialView.as_view(
-        form_class=forms.DefaultPaymentForm,
+        form_class=CustomForm,
         template_name='paymaster/init.html',
-        amount_key='amount'), name='init'),
+        email_field='email',  # атрибут объекта-плательщика содержащий эл.почту
+        phone_field='phone',  # атрибут объекта-плательщика содержащий номер телефона
+        amount_key='amount_value'),  # имя поля формы со значением суммы платежа
+        name='init'),
+
+    url(r'^success/',
+        views.SuccessView.as_view(template_name='paymaster/success.html'),
+        name='success'),
+
+    url(r'^fail/',
+        views.FailView.as_view(template_name='paymaster/fail.html'),
+        name='fail'),
+
 )
 ```

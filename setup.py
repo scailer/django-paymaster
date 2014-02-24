@@ -13,7 +13,7 @@ reload(sys).setdefaultencoding("UTF-8")
 
 setup(
     name='django-paymaster',
-    version='0.1-alpha',
+    version='0.1b',
     author='Dmitriy Vlasov',
     author_email='scailer@russia.ru',
 
@@ -36,7 +36,7 @@ setup(
     requires=['django (>= 1.5)', 'pytz'],
 
     classifiers=(
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
         'Framework :: Django',
         'Intended Audience :: Developers',

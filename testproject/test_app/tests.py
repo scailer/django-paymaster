@@ -50,7 +50,7 @@ class TestAll(TestCase):
         data['LMI_SYS_PAYMENT_ID'] = 'A184F-CA23'
         data['LMI_SYS_PAYMENT_DATE'] = '2014-01-12T11:11:11'
 
-        _line = u';'.join([data.get(key) for key in settings.HASH_FIELDS])
+        _line = u';'.join([data.get(key) for key in settings.PAYMASTER_HASH_FIELDS])
         _line += u';{0}'.format(settings.PAYMASTER_PASSWORD)
 
         hash_method = settings.PAYMASTER_HASH_METHOD

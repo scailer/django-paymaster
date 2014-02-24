@@ -25,6 +25,16 @@ project/settings.py
 ```python
 PAYMASTER_PASSWORD = '1234567890abcdef'
 PAYMASTER_MERCHANT_ID = '11112222-3333-4444-5555-666677778888'
+
+LOGGING = {
+    ...
+    'loggers': {
+        ...
+        'paymaster': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    }
 ```
 
 ## Настройки ##
@@ -69,7 +79,7 @@ PAYMASTER_HASH_METHOD = 'md5', 'sha1', 'sha256'
 
 Список полей для хеширования
 ```python
-HASH_FIELDS = (
+PAYMASTER_HASH_FIELDS = (
     'LMI_MERCHANT_ID', 'LMI_PAYMENT_NO', 'LMI_SYS_PAYMENT_ID',
     'LMI_SYS_PAYMENT_DATE', 'LMI_PAYMENT_AMOUNT', 'LMI_CURRENCY',
     'LMI_PAID_AMOUNT', 'LMI_PAID_CURRENCY', 'LMI_PAYMENT_SYSTEM',
@@ -150,6 +160,7 @@ def _init(sender, data, **kwargs):
 
 @receiver(signals.invoice_confirm, dispatch_uid='def_confirm')
 def _confirm(sender, invoice, **kwargs):
+    sender.request.user  # sender is view-class object
     ActivityLog.objects.create(action='confirm', invoice=invoice)
 
 

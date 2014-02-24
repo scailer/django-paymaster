@@ -88,3 +88,28 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s',
+             'datefmt': '%Y-%m-%d %H:%M:%S'
+         },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        'paymaster': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    }
+}
+

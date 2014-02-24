@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import logging
 from django.conf import settings as user_settings
 from django.core.exceptions import ImproperlyConfigured
 
@@ -26,7 +27,7 @@ LOCAL = {
     'PAYMASTER_USER_PHONE_FIELD': None,
     'PAYMASTER_USER_EMAIL_FIELD': None,
 
-    'HASH_FIELDS': (
+    'PAYMASTER_HASH_FIELDS': (
         'LMI_MERCHANT_ID', 'LMI_PAYMENT_NO', 'LMI_SYS_PAYMENT_ID',
         'LMI_SYS_PAYMENT_DATE', 'LMI_PAYMENT_AMOUNT', 'LMI_CURRENCY',
         'LMI_PAID_AMOUNT', 'LMI_PAID_CURRENCY', 'LMI_PAYMENT_SYSTEM',
@@ -53,3 +54,4 @@ class LocalSettings(object):
                        self.local_settings.get(name))
 
 settings = LocalSettings(LOCAL, user_settings)
+logger = logging.getLogger('paymaster')

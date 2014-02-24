@@ -13,6 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 from .models import Invoice
 from . import settings
 from . import signals
+from . import logger
 
 
 class InitialView(generic.FormView):
@@ -24,12 +25,17 @@ class InitialView(generic.FormView):
 
     def form_valid(self, form):
         if not self.request.user.is_authenticated():
+            logger.warn(u'No user. Permission denied.')
             return HttpResponse('NO ACCESS', status=403)
 
         url = '{0}?{1}'.format(
             settings.PAYMASTER_INIT_URL,
             self.init_query(form)
         )
+
+        logger.info(u'User {0} redirected to {1}'.format(
+            self.request.user.username, url))
+
         return HttpResponseRedirect(url)
 
     def get_payer(self):
@@ -66,7 +72,10 @@ class InitialView(generic.FormView):
 
     def get_payer_phone(self, form):
         payer = self.get_payer()
-        return getattr(payer, self.phone_field, None)
+        phone = getattr(payer, self.phone_field, None)
+
+        if phone:
+            return u''.join([x for x in phone if x in '1234567890'])
 
     def get_payer_email(self, form):
         payer = self.get_payer()
@@ -116,13 +125,16 @@ class InitialView(generic.FormView):
 class ConfirmView(generic.View):
     def post(self, request):
         invoice = Invoice.objects.create_from_api(request.POST)
+        logger.info(u'Invoice {0} payment confirm.'.format(invoice.number))
         signals.invoice_confirm.send(sender=self, invoice=invoice)
         return HttpResponse('YES', content_type='text/plain')
 
 
 class NotificationView(generic.View):
+    _hash_fields = settings.PAYMASTER_HASH_FIELDS
+
     def check_hash(self, data):
-        _line = u';'.join([data.get(key) for key in settings.HASH_FIELDS])
+        _line = u';'.join([data.get(key) for key in self._hash_fields])
         _line += u';{0}'.format(settings.PAYMASTER_PASSWORD)
 
         hash_method = settings.PAYMASTER_HASH_METHOD
@@ -131,12 +143,21 @@ class NotificationView(generic.View):
 
     def post(self, request):
         if not self.check_hash(request.POST):
+            logger.error(
+                u'Invoice {0} payment failed by reason: HashError'.format(
+                    request.POST.get('LMI_PAYMENT_NO')))
             return HttpResponse('HashError')
 
         try:
             invoice = Invoice.objects.finalize(request.POST)
         except Invoice.InvoiceDuplication:
+            logger.error(
+                u'Invoice {0} payment failed by reason: Duplication'.format(
+                    request.POST.get('LMI_PAYMENT_NO')))
+
             return HttpResponse('InvoiceDuplicationError')
+
+        logger.info(u'Invoice {0} paid succesfully.'.format(invoice.number))
 
         signals.invoice_paid.send(sender=self, invoice=invoice)
         return HttpResponse('')
@@ -145,6 +166,7 @@ class NotificationView(generic.View):
 class SuccessView(generic.TemplateView):
     def get(self, request):
         invoice = Invoice.objects.get(pk=request.REQUEST['LMI_PAYMENT_NO'])
+        logger.info(u'Invoice {0} success page visited'.format(invoice.number))
         signals.success_visited.send(sender=self, invoice=invoice)
         return super(SuccessView, self).get(request)
 
@@ -155,6 +177,7 @@ class SuccessView(generic.TemplateView):
 class FailView(generic.TemplateView):
     def get(self, request):
         invoice = Invoice.objects.get(pk=request.REQUEST['LMI_PAYMENT_NO'])
+        logger.info(u'Invoice {0} fail page visited'.format(invoice.number))
         signals.fail_visited.send(sender=self, invoice=invoice)
         return super(FailView, self).get(request)
 

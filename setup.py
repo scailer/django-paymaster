@@ -31,7 +31,11 @@ setup(
         u'Приложение для интеграции платежной системы PayMaster '
         u'(http://paymaster.ru/) в проекты на Django. Реализовано '
         u'только основное API PayMaster, согласно спецификации'
-        u'https://paymaster.ru/Partners/ru/docs/protocol').encode('utf8'),
+        u'http://paymaster.ru/Partners/ru/docs/protocol/\n\n'
+        u'С ознакомиться документацией, а так же сообщить об '
+        u'ошибках можно на странице проекта '
+        u'http://github.com/scailer/django-paymaster/'
+    ).encode('utf8'),
 
     requires=['django (>= 1.5)', 'pytz'],
 

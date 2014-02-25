@@ -19,11 +19,18 @@ from django.views import generic
 from django.http import HttpResponseRedirect, HttpResponse, QueryDict
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import Invoice
 from . import settings
 from . import signals
 from . import logger
+
+
+class CSRFExempt(object):
+    @csrf_exempt
+    def dispatch(self, *args, **kwargs):
+        return super(CSRFExempt, self).dispatch(*args, **kwargs)
 
 
 class InitialView(generic.FormView):
@@ -157,7 +164,7 @@ class InitialView(generic.FormView):
         return urllib.urlencode(data)
 
 
-class ConfirmView(generic.View):
+class ConfirmView(CSRFExempt, generic.View):
     """
         Обработчик предзапроса подтверждения счета (Invoice Confirmation).
 
@@ -184,7 +191,7 @@ class ConfirmView(generic.View):
         return HttpResponse('YES', content_type='text/plain')
 
 
-class NotificationView(generic.View):
+class NotificationView(CSRFExempt, generic.View):
     """
         Обработчик уведомления об оплате счета (Payment Notification).
 
@@ -232,7 +239,7 @@ class NotificationView(generic.View):
         return HttpResponse('')
 
 
-class SuccessView(generic.TemplateView):
+class SuccessView(CSRFExempt, generic.TemplateView):
     """
         Страница успешного возврата.
 
@@ -252,7 +259,7 @@ class SuccessView(generic.TemplateView):
         return self.get(request)
 
 
-class FailView(generic.TemplateView):
+class FailView(CSRFExempt, generic.TemplateView):
     """
         Страница неуспешного возврата.
 
@@ -261,9 +268,21 @@ class FailView(generic.TemplateView):
     """
 
     def get(self, request):
-        invoice = Invoice.objects.get(pk=request.REQUEST['LMI_PAYMENT_NO'])
-        logger.info(u'Invoice {0} fail page visited'.format(invoice.number))
-        signals.fail_visited.send(sender=self, invoice=invoice)
+        payment_no = request.REQUEST['LMI_PAYMENT_NO']
+
+        try:
+            invoice = Invoice.objects.get(pk=payment_no)
+            logger.info(
+                u'Invoice {0} fail page visited'.format(invoice.number))
+
+        except Invoice.DoesNotExist:
+            invoice = None
+            logger.error(
+                u'Invoice {0} DoesNotExist'.format(payment_no))
+
+        signals.fail_visited.send(
+            sender=self, data=request.REQUEST, invoice=invoice)
+
         return super(FailView, self).get(request)
 
     def post(self, request):

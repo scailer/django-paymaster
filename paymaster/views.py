@@ -237,7 +237,8 @@ class NotificationView(CSRFExempt, generic.View):
 
         hash_method = settings.PAYMASTER_HASH_METHOD
         _hash = getattr(hashlib, hash_method)(_line.encode('utf-8'))
-        return _hash.hexdigest() == data.get('LMI_HASH')
+        _hash = base64.encodestring(_hash.digest()).replace('\n', '')
+        return _hash == data.get('LMI_HASH')
 
     def post(self, request):
         if not self.check_hash(request.POST):  # Проверяем ключ

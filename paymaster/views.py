@@ -29,6 +29,21 @@ from . import signals
 from . import logger
 
 
+def get_payer(enc):
+    try:
+        _chr = ''.join(chr(int(enc[i:i + 3])) for i in range(0, len(enc), 3))
+        pk = decrypt(settings.SECRET_KEY, _chr)
+        return get_user_model().objects.get(pk=pk)
+
+    except DecryptionException:
+        logger.warn(u'Payer decryption error')
+
+    except get_user_model().DoesNotExist:
+        logger.warn(u'Payer does not exist')
+
+    return None
+
+
 class CSRFExempt(object):
     @csrf_exempt
     def dispatch(self, *args, **kwargs):
@@ -189,31 +204,14 @@ class ConfirmView(CSRFExempt, generic.View):
         сигнал invoice_confirm c объектом-счетом в качестве параметра.
     """
 
-    def get_payer(self):
-        _enc = self.request.REQUEST.get('LOC_PAYER_ID')
-        _chr = ''.join(chr(int(_enc[i:i + 3])) for i in range(0, len(_enc), 3))
-        pk = decrypt(settings.SECRET_KEY, _chr)
-        return get_user_model().objects.get(pk=pk)
-
     def post(self, request):
         # Создание счета в БД продавца
         invoice = Invoice.objects.create_from_api(request.POST)
         logger.info(u'Invoice {0} payment confirm.'.format(invoice.number))
-
-        try:
-            invoice.payer = self.get_payer()
-            invoice.save()
-
-        except DecryptionException:
-            logger.warn(
-                u'Payer decryption error [{0}]'.format(invoice.number))
-
-        except get_user_model().DoesNotExist:
-            logger.warn(
-                u'Payer does not exist [{0}]'.format(invoice.number))
+        payer = get_payer(self.request.REQUEST.get('LOC_PAYER_ID'))
 
         # Отправка сигнал подтверждения счета.
-        signals.invoice_confirm.send(sender=self, invoice=invoice)
+        signals.invoice_confirm.send(sender=self, payer=payer, invoice=invoice)
         return HttpResponse('YES', content_type='text/plain')
 
 
@@ -259,10 +257,11 @@ class NotificationView(CSRFExempt, generic.View):
             return HttpResponse('InvoiceDuplicationError')
 
         logger.info(u'Invoice {0} paid succesfully.'.format(invoice.number))
+        payer = get_payer(self.request.REQUEST.get('LOC_PAYER_ID'))
 
         # Отправляем сигнал об успешной оплате
-        signals.invoice_paid.send(sender=self, invoice=invoice)
-        return HttpResponse('')
+        signals.invoice_paid.send(sender=self, payer=payer, invoice=invoice)
+        return HttpResponse('', content_type='text/plain')
 
 
 class SuccessView(CSRFExempt, generic.TemplateView):

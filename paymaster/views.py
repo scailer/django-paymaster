@@ -14,12 +14,14 @@ import urllib
 import hashlib
 from uuid import uuid4
 from datetime import datetime, timedelta
+from simplecrypt import encrypt, decrypt, DecryptionException
 
 from django.views import generic
 from django.http import HttpResponseRedirect, HttpResponse, QueryDict
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import get_user_model
 
 from .models import Invoice
 from . import settings
@@ -69,6 +71,11 @@ class InitialView(generic.FormView):
     def get_payer(self):
         """ Получаем объект-плательщика """
         return self.request.user
+
+    def get_payer_id(self):
+        """ Получаем кодированный идентификатор плательщика """
+        _d = encrypt(settings.SECRET_KEY, unicode(self.request.user.pk))
+        return u''.join(u'{0:03}'.format(ord(x)) for x in _d)
 
     def get_amount(self, form):
         """ Получаем сумму платежа """
@@ -151,6 +158,7 @@ class InitialView(generic.FormView):
                 settings.PAYMASTER_INVOICE_CONFIRMATION_URL),
             'LMI_PAYMENT_NOTIFICATION_URL': (
                 settings.PAYMASTER_PAYMENT_NOTIFICATION_URL),
+            'LOC_PAYER_ID': self.get_payer_id(),
         }
 
         data.update(self.get_extra_params(form))
@@ -181,10 +189,28 @@ class ConfirmView(CSRFExempt, generic.View):
         сигнал invoice_confirm c объектом-счетом в качестве параметра.
     """
 
+    def get_payer(self):
+        _enc = self.request.REQUEST.get('LOC_PAYER_ID')
+        _chr = ''.join(chr(int(_enc[i:i + 3])) for i in range(0, len(_enc), 3))
+        pk = decrypt(settings.SECRET_KEY, _chr)
+        return get_user_model().objects.get(pk=pk)
+
     def post(self, request):
         # Создание счета в БД продавца
         invoice = Invoice.objects.create_from_api(request.POST)
         logger.info(u'Invoice {0} payment confirm.'.format(invoice.number))
+
+        try:
+            invoice.payer = self.get_payer()
+            invoice.save()
+
+        except DecryptionException:
+            logger.warn(
+                u'Payer decryption error [{0}]'.format(invoice.number))
+
+        except get_user_model().DoesNotExist:
+            logger.warn(
+                u'Payer does not exist [{0}]'.format(invoice.number))
 
         # Отправка сигнал подтверждения счета.
         signals.invoice_confirm.send(sender=self, invoice=invoice)

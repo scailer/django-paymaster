@@ -92,7 +92,7 @@ class InitialView(generic.FormView):
 
             number = _gen()
 
-            while Invoice.objects.filter(pk=number).exists():
+            while Invoice.objects.filter(number=number).exists():
                 number = _gen()
 
             self._payment_no = number
@@ -276,7 +276,7 @@ class SuccessView(CSRFExempt, generic.TemplateView):
     """
 
     def get(self, request):
-        invoice = Invoice.objects.get(pk=request.REQUEST['LMI_PAYMENT_NO'])
+        invoice = Invoice.objects.get(number=request.REQUEST['LMI_PAYMENT_NO'])
         logger.info(u'Invoice {0} success page visited'.format(invoice.number))
         signals.success_visited.send(sender=self, invoice=invoice)
         return super(SuccessView, self).get(request)
@@ -297,7 +297,7 @@ class FailView(CSRFExempt, generic.TemplateView):
         payment_no = request.REQUEST['LMI_PAYMENT_NO']
 
         try:
-            invoice = Invoice.objects.get(pk=payment_no)
+            invoice = Invoice.objects.get(number=payment_no)
             logger.info(
                 u'Invoice {0} fail page visited'.format(invoice.number))
 

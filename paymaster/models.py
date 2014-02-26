@@ -4,11 +4,12 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth import get_user_model
 from .managers import InvoiceManager, InvoiceDuplication
+from . import settings
 
 
 class Invoice(models.Model):
     payer = models.ForeignKey(
-        get_user_model(), blank=True, null=True,
+        settings.AUTH_USER_MODEL, blank=True, null=True,
         verbose_name=u'Плательщик')
     number = models.CharField(
         _(u'Номер счета'), max_length=17, unique=True)

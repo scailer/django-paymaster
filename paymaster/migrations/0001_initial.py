@@ -3,6 +3,7 @@ from south.utils import datetime_utils as datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
+from django.conf import settings
 
 
 class Migration(SchemaMigration):
@@ -11,7 +12,7 @@ class Migration(SchemaMigration):
         # Adding model 'Invoice'
         db.create_table(u'paymaster_invoice', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], null=True, blank=True)),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm[settings.AUTH_USER_MODEL], null=True, blank=True)),
             ('number', self.gf('django.db.models.fields.CharField')(unique=True, max_length=17)),
             ('description', self.gf('django.db.models.fields.CharField')(max_length=256)),
             ('amount', self.gf('django.db.models.fields.DecimalField')(max_digits=11, decimal_places=2)),
@@ -87,7 +88,7 @@ class Migration(SchemaMigration):
             'payment_id': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True', 'blank': 'True'}),
             'payment_method': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
             'payment_system': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']", 'null': 'True', 'blank': 'True'})
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['{}']".format(settings.AUTH_USER_MODEL), 'null': 'True', 'blank': 'True'})
         }
     }
 

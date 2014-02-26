@@ -11,7 +11,7 @@ class Invoice(models.Model):
         get_user_model(), blank=True, null=True,
         verbose_name=u'Плательщик')
     number = models.CharField(
-        _(u'Номер счета'), max_length=17, primary_key=True)
+        _(u'Номер счета'), max_length=17, unique=True)
     description = models.CharField(
         _(u'Назначение платежа'), max_length=256)
     amount = models.DecimalField(

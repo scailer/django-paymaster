@@ -43,6 +43,16 @@ class Invoice(models.Model):
     objects = InvoiceManager()
     InvoiceDuplication = InvoiceDuplication
 
+    def is_paid(self):
+        return bool(self.payment_date)
+
+    def __unicode__(self):
+        if self.is_paid():
+            return u'{0} {1}'.format(
+                self.number, self.payment_date.strftime('%Y-%m-%d'))
+
+        return u'{0} (no paid)'.format(self.number, self.payment_date)
+
     class Meta:
         verbose_name = _(u'Счет')
         verbose_name_plural = _(u'Счета')

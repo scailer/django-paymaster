@@ -40,8 +40,9 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_coverage',
 
-    'south',
+#    'south',
     'paymaster',
     'test_app',
 )
@@ -58,6 +59,7 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'testproject.urls'
 
 WSGI_APPLICATION = 'testproject.wsgi.application'
+AUTH_USER_MODEL = 'test_app.User'
 
 
 # Database

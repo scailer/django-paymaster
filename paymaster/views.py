@@ -12,42 +12,18 @@
 import base64
 import urllib
 import hashlib
-from uuid import uuid4
 from datetime import datetime, timedelta
-from simplecrypt import encrypt, decrypt, DecryptionException
 
 from django.views import generic
 from django.http import HttpResponseRedirect, HttpResponse, QueryDict
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import get_user_model
 
 from .models import Invoice
 from . import settings
 from . import signals
 from . import logger
-
-
-def get_payer(enc):
-    try:
-        _chr = ''.join(chr(int(enc[i:i + 3])) for i in range(0, len(enc), 3))
-        pk = decrypt(settings.SECRET_KEY, _chr)
-        return get_user_model().objects.get(pk=pk)
-
-    except DecryptionException:
-        logger.warn(u'Payer decryption error')
-
-    except get_user_model().DoesNotExist:
-        logger.warn(u'Payer does not exist')
-
-    return None
-
-
-class CSRFExempt(object):
-    @csrf_exempt
-    def dispatch(self, *args, **kwargs):
-        return super(CSRFExempt, self).dispatch(*args, **kwargs)
+from . import utils
 
 
 class InitialView(generic.FormView):
@@ -89,8 +65,7 @@ class InitialView(generic.FormView):
 
     def get_payer_id(self):
         """ Получаем кодированный идентификатор плательщика """
-        _d = encrypt(settings.SECRET_KEY, unicode(self.request.user.pk))
-        return u''.join(u'{0:03}'.format(ord(x)) for x in _d)
+        return utils.encode_payer(self.request.user)
 
     def get_amount(self, form):
         """ Получаем сумму платежа """
@@ -98,17 +73,14 @@ class InitialView(generic.FormView):
 
     def get_paymant_no(self, form):
         """ Генерируем номер платежа """
+        _gen = (settings.PAYMASTER_INVOICE_NUMBER_GENERATOR
+                or utils.number_generetor)
+
         if not self._payment_no:
-            number = None
-
-            def _gen():
-                _mask = '%Y%m%d-{0:08x}'.format(uuid4().get_fields()[0])
-                return datetime.now().strftime(_mask)
-
-            number = _gen()
+            number = _gen(self, form)
 
             while Invoice.objects.filter(number=number).exists():
-                number = _gen()
+                number = _gen(self, form)
 
             self._payment_no = number
 
@@ -187,7 +159,7 @@ class InitialView(generic.FormView):
         return urllib.urlencode(data)
 
 
-class ConfirmView(CSRFExempt, generic.View):
+class ConfirmView(utils.CSRFExempt, generic.View):
     """
         Обработчик предзапроса подтверждения счета (Invoice Confirmation).
 
@@ -208,14 +180,14 @@ class ConfirmView(CSRFExempt, generic.View):
         # Создание счета в БД продавца
         invoice = Invoice.objects.create_from_api(request.POST)
         logger.info(u'Invoice {0} payment confirm.'.format(invoice.number))
-        payer = get_payer(self.request.REQUEST.get('LOC_PAYER_ID'))
+        payer = utils.decode_payer(self.request.REQUEST.get('LOC_PAYER_ID'))
 
         # Отправка сигнал подтверждения счета.
         signals.invoice_confirm.send(sender=self, payer=payer, invoice=invoice)
         return HttpResponse('YES', content_type='text/plain')
 
 
-class NotificationView(CSRFExempt, generic.View):
+class NotificationView(utils.CSRFExempt, generic.View):
     """
         Обработчик уведомления об оплате счета (Payment Notification).
 
@@ -258,14 +230,14 @@ class NotificationView(CSRFExempt, generic.View):
             return HttpResponse('InvoiceDuplicationError')
 
         logger.info(u'Invoice {0} paid succesfully.'.format(invoice.number))
-        payer = get_payer(self.request.REQUEST.get('LOC_PAYER_ID'))
+        payer = utils.decode_payer(self.request.REQUEST.get('LOC_PAYER_ID'))
 
         # Отправляем сигнал об успешной оплате
         signals.invoice_paid.send(sender=self, payer=payer, invoice=invoice)
         return HttpResponse('', content_type='text/plain')
 
 
-class SuccessView(CSRFExempt, generic.TemplateView):
+class SuccessView(utils.CSRFExempt, generic.TemplateView):
     """
         Страница успешного возврата.
 
@@ -285,7 +257,7 @@ class SuccessView(CSRFExempt, generic.TemplateView):
         return self.get(request)
 
 
-class FailView(CSRFExempt, generic.TemplateView):
+class FailView(utils.CSRFExempt, generic.TemplateView):
     """
         Страница неуспешного возврата.
 

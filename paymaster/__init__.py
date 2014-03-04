@@ -17,6 +17,7 @@ LOCAL = {
     'PAYMASTER_DEFAULT_PAYMENT_METHOD': u'WebMoney',
     'PAYMASTER_DESCRIPTION_MASK': (
         u'Пополнение баланса для пользователя {payer.email} [{number}]'),
+    'PAYMASTER_INVOICE_NUMBER_GENERATOR': None,
 
     'PAYMASTER_SIM_MODE': None,
     'PAYMASTER_INVOICE_CONFIRMATION_URL': None,

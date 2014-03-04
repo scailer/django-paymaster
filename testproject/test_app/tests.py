@@ -8,7 +8,8 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth import get_user_model
 from django.http import QueryDict
 
-from paymaster import settings
+from paymaster import settings, utils
+from paymaster.models import Invoice
 from .models import ActivityLog
 
 
@@ -21,14 +22,22 @@ class TestAll(TestCase):
         assert ActivityLog.objects.count() == 0
 
         url = reverse('paymaster:init')
+        response = self.client.post(url, {})
+        assert 200 == response.status_code
+
         response = self.client.post(url, {'amount': 11})
         assert 403 == response.status_code
+
+        self.client.login(username='user', password='pass')
 
         response = self.client.post(url, {'amount': 1})
         assert 200 == response.status_code
         assert ActivityLog.objects.count() == 0
 
-        self.client.login(username='user', password='pass')
+        response = self.client.post(url, {'amount': 13})
+        assert 200 == response.status_code
+        assert ActivityLog.objects.count() == 0
+
         response = self.client.post(url, {'amount': 11})
         assert 302 == response.status_code
         assert ActivityLog.objects.filter(action='init').count() == 1
@@ -55,6 +64,7 @@ class TestAll(TestCase):
 
         hash_method = settings.PAYMASTER_HASH_METHOD
         _hash = getattr(hashlib, hash_method)(_line.encode('utf-8'))
+        _hash = base64.encodestring(_hash.digest()).replace('\n', '')
 
         response = self.client.post(reverse('paymaster:paid'), data)
         assert 200 == response.status_code
@@ -65,11 +75,12 @@ class TestAll(TestCase):
         assert 200 == response.status_code
         assert ActivityLog.objects.filter(action='fail').count() == 1
 
-        data['LMI_HASH'] = _hash.hexdigest()
+        data['LMI_HASH'] = _hash
 
         response = self.client.post(reverse('paymaster:paid'), data)
         assert 200 == response.status_code
         assert ActivityLog.objects.filter(action='paid').count() == 1
+        assert Invoice.objects.get().is_paid()
 
         response = self.client.post(reverse('paymaster:paid'), data)
         assert 200 == response.status_code
@@ -79,3 +90,18 @@ class TestAll(TestCase):
         response = self.client.post(reverse('paymaster:success'), data)
         assert 200 == response.status_code
         assert ActivityLog.objects.filter(action='success').count() == 1
+
+        data['LMI_PAYMENT_NO'] = '12345678-12345678'
+        response = self.client.post(reverse('paymaster:fail'), data)
+        assert 200 == response.status_code
+
+    def testElse(self):
+        user = get_user_model().objects.all()[0]
+        enc = utils.encode_payer(user)
+        utils.decode_payer(enc + '111')
+
+        user.pk = 1111
+        enc = utils.encode_payer(user)
+        utils.decode_payer(enc)
+
+        assert True

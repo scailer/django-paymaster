@@ -138,6 +138,13 @@ PAYMASTER_USER_EMAIL_FIELD = 'email'
 PAYMASTER_SHOP_ID = '123456'
 ```
 
+Функция-генератор номеров счетов
+```python
+def foo(view, form):
+    return unicode(1)
+
+PAYMASTER_INVOICE_NUMBER_GENERATOR = foo
+```
 
 ## Сигналы ##
 
@@ -147,11 +154,21 @@ PAYMASTER_SHOP_ID = '123456'
 проигнорирован) с параметрами инициации платежа. Этот сигнал может
 использоваться для валидации данных (raise ValidationError).
 
+Аргуметы:
+
+data = request.REQUEST
+
 **`signals.invoice_confirm`**
 
 Сигнал посылается после создания счета но до регистрации его оплаты 
-с объектом-счетом в качестве аргумента. Используется для действий 
-предваряющих оплату (уведомления, логирование и т.п.)
+с объектом-счетом и плательщиком в качестве аргумента. Используется 
+для действий предваряющих оплату (уведомления, логирование и т.п.)
+
+Аргуметы:
+
+payer = Django-пользователь, инициатор платежа
+
+invoice = paymaster.models.Invoice
 
 **`signals.invoice_paid`**
 
@@ -160,6 +177,12 @@ PAYMASTER_SHOP_ID = '123456'
 Является единственным безопасным сигналом, гарантирущим что счет
 оплачен.
 
+Аргуметы:
+
+payer = Django-пользователь, инициатор платежа
+
+invoice = paymaster.models.Invoice
+
 **`signals.success_visited`**
 
 Сигнал посылается до отображения пользователю страницы-уведомления
@@ -167,11 +190,23 @@ PAYMASTER_SHOP_ID = '123456'
 валидности платежа, служит исключительно в целях 
 уведомления/логирования.
 
+Аргуметы:
+
+data = request.REQUEST
+
+invoice = paymaster.models.Invoice
+
 **`signals.fail_visited`**
 
 Сигнал посылается до отображения пользователю страницы-уведомления
 об неуспешном проведении платежа. Служит исключительно в целях 
 уведомления/логирования.
+
+Аргуметы:
+
+data = request.REQUEST
+
+invoice = paymaster.models.Invoice
 
 
 ```python
@@ -193,23 +228,23 @@ def _init(sender, data, **kwargs):
 
 
 @receiver(signals.invoice_confirm, dispatch_uid='def_confirm')
-def _confirm(sender, invoice, **kwargs):
+def _confirm(sender, payer, invoice, **kwargs):
     sender.request.user  # sender is view-class object
     ActivityLog.objects.create(action='confirm', invoice=invoice)
 
 
 @receiver(signals.invoice_paid, dispatch_uid='def_paid')
-def _paid(sender, invoice, **kwargs):
+def _paid(sender, payer, invoice, **kwargs):
     ActivityLog.objects.create(action='paid', invoice=invoice)
 
 
 @receiver(signals.success_visited, dispatch_uid='def_success')
-def _success(sender, invoice, **kwargs):
+def _success(sender, data, invoice, **kwargs):
     ActivityLog.objects.create(action='success', invoice=invoice)
 
 
 @receiver(signals.fail_visited, dispatch_uid='def_fail')
-def _fail(sender, invoice, **kwargs):
+def _fail(sender, data, invoice, **kwargs):
     ActivityLog.objects.create(action='fail', invoice=invoice)
 ```
 

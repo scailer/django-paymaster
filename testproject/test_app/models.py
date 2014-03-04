@@ -2,7 +2,14 @@
 
 from django.db import models
 from django.dispatch import receiver
+from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 from paymaster import signals
+
+
+class User(AbstractUser):
+    phone = models.CharField('Phone', max_length=25,
+                             default='+7 (909) 123 4567')
 
 
 class ActivityLog(models.Model):
@@ -13,8 +20,9 @@ class ActivityLog(models.Model):
 
 @receiver(signals.invoice_init, dispatch_uid='def_init')
 def _init(sender, data, **kwargs):
-    if data.get('amount'):
-        ActivityLog.objects.create(action='init')
+    if data.get('amount') == '13':
+        raise ValidationError('Amount can\'t be 13')
+    ActivityLog.objects.create(action='init')
 
 
 @receiver(signals.invoice_confirm, dispatch_uid='def_confirm')

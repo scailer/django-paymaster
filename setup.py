@@ -13,7 +13,7 @@ reload(sys).setdefaultencoding("UTF-8")
 
 setup(
     name='django-paymaster',
-    version='0.1b',
+    version='0.1',
     author='Dmitriy Vlasov',
     author_email='scailer@russia.ru',
 
@@ -26,7 +26,9 @@ setup(
     url='https://github.com/scailer/django-paymaster/',
     license='MIT license',
     description=(u'Application for integration PayMaster payment '
-                 u'system in Django projects').encode('utf8'),
+                 u'system in Django projects.\n Documents: '
+                 u'http://github.com/scailer/django-paymaster/'
+                 ).encode('utf8'),
     long_description=(
         u'Приложение для интеграции платежной системы PayMaster '
         u'(http://paymaster.ru/) в проекты на Django. Реализовано '
@@ -40,7 +42,7 @@ setup(
     requires=['django (>= 1.5)', 'pytz', 'simple_crypt'],
 
     classifiers=(
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
         'Framework :: Django',
         'Intended Audience :: Developers',

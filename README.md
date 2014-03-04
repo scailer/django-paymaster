@@ -267,7 +267,7 @@ def _fail(sender, data, invoice, **kwargs):
 
 Шаблон уведобления об успешном платеже.
 
-**`paymaster/.html`**
+**`paymaster/fail.html`**
 
 Шаблон уведобления о неудачном платеже.
 

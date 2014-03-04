@@ -38,6 +38,7 @@ setup(
     ).encode('utf8'),
 
     requires=['django (>= 1.5)', 'pytz', 'simple_crypt'],
+    install_requires=['django (>= 1.5)', 'pytz', 'simple_crypt'],
 
     classifiers=(
         'Development Status :: 5 - Production/Stable',

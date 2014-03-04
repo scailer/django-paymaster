@@ -8,7 +8,7 @@ django-paymaster
 ## Установка ##
 
 ```sh
-$ pip install django-paymaster
+$ pip install django simple_crypt pytz django-paymaster
 ```
 
 project/urls.py

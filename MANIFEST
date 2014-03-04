@@ -10,6 +10,7 @@ paymaster/models.py
 paymaster/signals.py
 paymaster/tests.py
 paymaster/urls.py
+paymaster/utils.py
 paymaster/views.py
 paymaster/migrations/0001_initial.py
 paymaster/migrations/__init__.py

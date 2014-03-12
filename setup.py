@@ -13,7 +13,7 @@ reload(sys).setdefaultencoding("UTF-8")
 
 setup(
     name='django-paymaster',
-    version='0.1',
+    version='0.1.1',
     author='Dmitriy Vlasov',
     author_email='scailer@russia.ru',
 
@@ -38,7 +38,6 @@ setup(
     ).encode('utf8'),
 
     requires=['django (>= 1.5)', 'pytz', 'simple_crypt'],
-    install_requires=['django (>= 1.5)', 'pytz', 'simple_crypt'],
 
     classifiers=(
         'Development Status :: 5 - Production/Stable',

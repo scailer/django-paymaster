@@ -28,7 +28,7 @@ setup(
     url='https://github.com/scailer/django-paymaster/',
     license='MIT license',
     description=(u'Application for integration PayMaster payment '
-                 u'system in Django projects.').encode('utf8'),
+                 u'system in Django projects.'),
     long_description=(
         u'Приложение для интеграции платежной системы PayMaster '
         u'(http://paymaster.ru/) в проекты на Django. Реализовано '
@@ -37,7 +37,7 @@ setup(
         u'С ознакомиться документацией, а так же сообщить об '
         u'ошибках можно на странице проекта '
         u'http://github.com/scailer/django-paymaster/'
-    ).encode('utf8'),
+    ),
 
     requires=['django (>= 1.5)', 'pytz', 'simple_crypt'],
 
@@ -51,6 +51,7 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.4',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Natural Language :: Russian',
     ),

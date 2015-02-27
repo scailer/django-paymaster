@@ -37,7 +37,7 @@ def encode_payer(user):
 
 def number_generetor(view, form):
     """ Генератор номера платежа (по умолчанию) """
-    return u'{:%Y%m%d}-{:08x}'.format(datetime.now(), uuid4().get_fields()[0])
+    return u'{:%Y%m%d}-{:08x}'.format(datetime.now(), uuid4().fields[0])
 
 
 class CSRFExempt(object):

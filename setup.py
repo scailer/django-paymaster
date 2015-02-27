@@ -11,8 +11,7 @@ for cmd in ('egg_info', 'develop'):
 try:
     reload(sys).setdefaultencoding("UTF-8")
 except:
-    import imp
-    imp.reload(sys).setdefaultencoding("UTF-8")
+    pass
 
 setup(
     name='django-paymaster',

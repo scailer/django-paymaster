@@ -55,7 +55,7 @@ class InitialView(generic.FormView):
             return self.form_invalid(form)
 
         logger.info(u'User {0} redirected to {1}'.format(
-            self.request.user.username, url))
+            self.request.user.pk, url))
 
         return HttpResponseRedirect(url)
 
@@ -103,7 +103,7 @@ class InitialView(generic.FormView):
         phone = getattr(payer, self.phone_field, None)
 
         if phone is not None:
-            return u''.join(x for x in unicode(phone) if x in '1234567890')
+            return u''.join(x for x in u"{}".format(phone) if x in '1234567890')
 
     def get_payer_email(self, form):
         """ Получаем электронную почту """
@@ -156,7 +156,11 @@ class InitialView(generic.FormView):
         signals.invoice_init.send(sender=self, data=data)
 
         data = {k: v for k, v in data.items() if v}
-        return urllib.urlencode(data)
+
+        try:
+            return urllib.urlencode(data)
+        except AttributeError:
+            return urllib.parse.urlencode(data)
 
 
 class ConfirmView(utils.CSRFExempt, generic.View):

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import base64
 from uuid import uuid4
 from datetime import datetime
 from simplecrypt import encrypt, decrypt, DecryptionException
@@ -14,8 +15,8 @@ from . import logger
 def decode_payer(enc):
     """ Декодирование пользователя-инициатора платежа """
     try:
-        _chr = ''.join(chr(int(enc[i:i + 3])) for i in range(0, len(enc), 3))
-        pk = decrypt(settings.SECRET_KEY, _chr)
+        secret = base64.decodestring(enc.encode('utf-8'))
+        pk = decrypt(settings.SECRET_KEY, secret)
         return get_user_model().objects.get(pk=pk)
 
     except DecryptionException:
@@ -28,11 +29,7 @@ def decode_payer(enc):
 def encode_payer(user):
     """ Кодирование пользователя-инициатора платежа """
     secret = encrypt(settings.SECRET_KEY, u"{}".format(user.pk))
-
-    if type(secret) == bytes:
-        secret = secret.decode('unicode_escape')
-
-    return u''.join(u'{0:03}'.format(ord(x)) for x in secret)
+    return base64.encodestring(secret).decode('utf-8')
 
 
 def number_generetor(view, form):
@@ -41,6 +38,7 @@ def number_generetor(view, form):
 
 
 class CSRFExempt(object):
+
     """ Mixin отключения проверки CSRF ключа """
 
     @csrf_exempt

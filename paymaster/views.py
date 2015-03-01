@@ -208,13 +208,14 @@ class NotificationView(utils.CSRFExempt, generic.View):
 
     def check_hash(self, data):
         """ Проверка ключа безопасности """
+
         _line = u';'.join([data.get(key, '') for key in self._hash_fields])
         _line += u';{0}'.format(settings.PAYMASTER_PASSWORD)
 
         hash_method = settings.PAYMASTER_HASH_METHOD
         _hash = getattr(hashlib, hash_method)(_line.encode('utf-8'))
-        _hash = base64.encodestring(_hash.digest()).replace('\n', '')
-        return _hash == data.get('LMI_HASH')
+        _hash = base64.encodestring(_hash.digest()).replace(b'\n', b'')
+        return _hash == data.get('LMI_HASH').encode('utf-8')
 
     def post(self, request):
         if not self.check_hash(request.POST):  # Проверяем ключ

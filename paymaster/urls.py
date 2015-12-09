@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from . import views
 from . import forms
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^init/', views.InitialView.as_view(
         form_class=forms.DefaultPaymentForm,
         template_name='paymaster/init.html',
@@ -21,4 +21,4 @@ urlpatterns = patterns('',
     url(r'^fail/',
         views.FailView.as_view(template_name='paymaster/fail.html'),
         name='fail'),
-)
+]

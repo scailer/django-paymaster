@@ -184,7 +184,7 @@ class ConfirmView(utils.CSRFExempt, generic.View):
         # Создание счета в БД продавца
         invoice = Invoice.objects.create_from_api(request.POST)
         logger.info(u'Invoice {0} payment confirm.'.format(invoice.number))
-        payer = utils.decode_payer(self.request.REQUEST.get('LOC_PAYER_ID'))
+        payer = utils.decode_payer(self.request.POST.get('LOC_PAYER_ID'))
 
         # Отправка сигнал подтверждения счета.
         signals.invoice_confirm.send(sender=self, payer=payer, invoice=invoice)
@@ -235,7 +235,7 @@ class NotificationView(utils.CSRFExempt, generic.View):
             return HttpResponse('InvoiceDuplicationError')
 
         logger.info(u'Invoice {0} paid succesfully.'.format(invoice.number))
-        payer = utils.decode_payer(self.request.REQUEST.get('LOC_PAYER_ID'))
+        payer = utils.decode_payer(self.request.POST.get('LOC_PAYER_ID'))
 
         # Отправляем сигнал об успешной оплате
         signals.invoice_paid.send(sender=self, payer=payer, invoice=invoice)
@@ -253,7 +253,7 @@ class SuccessView(utils.CSRFExempt, generic.TemplateView):
     """
 
     def get(self, request):
-        invoice = Invoice.objects.get(number=request.REQUEST['LMI_PAYMENT_NO'])
+        invoice = Invoice.objects.get(number=request.POST['LMI_PAYMENT_NO'])
         logger.info(u'Invoice {0} success page visited'.format(invoice.number))
         signals.success_visited.send(sender=self, invoice=invoice)
         return super(SuccessView, self).get(request)
@@ -271,7 +271,7 @@ class FailView(utils.CSRFExempt, generic.TemplateView):
     """
 
     def get(self, request):
-        payment_no = request.REQUEST['LMI_PAYMENT_NO']
+        payment_no = request.POST['LMI_PAYMENT_NO']
 
         try:
             invoice = Invoice.objects.get(number=payment_no)

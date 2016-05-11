@@ -284,7 +284,7 @@ class FailView(utils.CSRFExempt, generic.TemplateView):
                 u'Invoice {0} DoesNotExist'.format(payment_no))
 
         signals.fail_visited.send(
-            sender=self, data=request.REQUEST, invoice=invoice)
+            sender=self, data=request.POST, invoice=invoice)
 
         return super(FailView, self).get(request)
 

@@ -35,6 +35,13 @@ def number_generetor(view, form):
     """ Генератор номера платежа (по умолчанию) """
     return u'{:%Y%m%d}-{:08x}'.format(datetime.now(), uuid4().get_fields()[0])
 
+def get_request_data(request):
+    """Получение данных, передаваемых с запросом"""
+    if request.method == 'POST':
+        return request.POST
+    else:
+        return request.GET
+
 
 class CSRFExempt(object):
     """ Mixin отключения проверки CSRF ключа """
@@ -42,3 +49,4 @@ class CSRFExempt(object):
     @csrf_exempt
     def dispatch(self, *args, **kwargs):
         return super(CSRFExempt, self).dispatch(*args, **kwargs)
+    

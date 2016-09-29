@@ -204,7 +204,7 @@ class NotificationView(utils.CSRFExempt, generic.View):
 
     def check_hash(self, data):
         """ Проверка ключа безопасности """
-        _line = u';'.join([data.get(key) for key in self._hash_fields])
+        _line = u';'.join([data.get(key,'') for key in self._hash_fields])
         _line += u';{0}'.format(settings.PAYMASTER_PASSWORD)
 
         hash_method = settings.PAYMASTER_HASH_METHOD

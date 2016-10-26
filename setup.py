@@ -13,9 +13,9 @@ reload(sys).setdefaultencoding("UTF-8")
 
 setup(
     name='django-paymaster',
-    version='0.1.1',
+    version='0.2.0',
     author='Dmitriy Vlasov',
-    author_email='scailer@russia.ru',
+    author_email='scailer@lwr.pw',
 
     include_package_data=True,
     packages=['paymaster'],

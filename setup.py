@@ -9,6 +9,9 @@ for cmd in ('egg_info', 'develop'):
         from setuptools import setup
 
 import sys
+if (sys.version_info > (3, 0)):
+    from importlib import reload
+    
 reload(sys).setdefaultencoding("UTF-8")
 
 setup(

@@ -38,6 +38,5 @@ setup(
 
     requires=['django (>= 1.5)', 'pytz', 'simple_crypt'],
 
-    classifiers=(
-    ),
+    classifiers=(u'test',),
 )

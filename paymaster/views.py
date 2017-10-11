@@ -156,7 +156,7 @@ class InitialView(generic.FormView):
         signals.invoice_init.send(sender=self, data=data)
 
         data = {k: v for k, v in data.items() if v}
-        return urllib.urlencode(data)
+        return urllib.parse.urlencode(data)
 
 
 class ConfirmView(utils.CSRFExempt, generic.View):

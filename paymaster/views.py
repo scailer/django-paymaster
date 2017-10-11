@@ -103,7 +103,7 @@ class InitialView(generic.FormView):
         phone = getattr(payer, self.phone_field, None)
 
         if phone is not None:
-            return u''.join(x for x in unicode(phone) if x in '1234567890')
+            return u''.join(x for x in str(phone) if x in '1234567890')
 
     def get_payer_email(self, form):
         """ Получаем электронную почту """

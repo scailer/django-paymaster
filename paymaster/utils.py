@@ -29,7 +29,7 @@ def decode_payer(enc):
 
 def encode_payer(user):
     """ Кодирование пользователя-инициатора платежа """
-    secret = encrypt(settings.SECRET_KEY, unicode(user.pk))
+    secret = encrypt(settings.SECRET_KEY, str(user.pk))
     return u''.join(u'{0:03}'.format(ord(x)) for x in secret)
 
 

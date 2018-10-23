@@ -43,7 +43,7 @@ class InitialView(generic.FormView):
 
     def form_valid(self, form):
         """ Формируем переход на сайт платежной системы """
-        if not self.request.user.is_authenticated():
+        if not self.request.user.is_authenticated:
             logger.warn(u'No user. Permission denied.')
             return HttpResponse('NO ACCESS', status=403)
 

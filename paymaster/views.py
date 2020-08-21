@@ -203,10 +203,39 @@ class NotificationView(utils.CSRFExempt, generic.View):
 
     _hash_fields = settings.PAYMASTER_HASH_FIELDS
 
+    def _get_merchant_model(self):
+        model_string = settings.PAYMASTER_MERCHANT_MODEL
+        if not model_string:
+            return
+
+        model_split = model_string.split(".")
+        model_name = model_split.pop()
+        module_name = ".".join(model_split)
+        if not model_name or not module_name:
+            return
+
+        try:
+            module = importlib.import_module(module_name)
+        except Exception:
+            return
+
+        return getattr(module, model_name)
+
+    def _get_merchant(self, merchant_id):
+        model = self._get_merchant_model()
+        if model:
+            return model.objects.filter(paymaster_merchant_id=merchant_id).first()
+
     def check_hash(self, data):
         """ Проверка ключа безопасности """
+        merchant = self._get_merchant(data.get("LMI_MERCHANT_ID"))
+        if merchant:
+            password = merchant.paymaster_password
+        else:
+            password = settings.PAYMASTER_PASSWORD
+
         _line = u';'.join([data.get(key,'') for key in self._hash_fields])
-        _line += u';{0}'.format(settings.PAYMASTER_PASSWORD)
+        _line += u';{0}'.format(password)
 
         hash_method = settings.PAYMASTER_HASH_METHOD
         _hash = getattr(hashlib, hash_method)(_line.encode('utf-8'))

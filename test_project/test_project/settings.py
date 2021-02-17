@@ -120,3 +120,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+PAYMASTER_PASSWORD = '123'
+PAYMASTER_MERCHANT_ID = '1b0f35e2-fdde-4594-a36b-0b783210eabd'

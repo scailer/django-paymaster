@@ -1,24 +1,24 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls import url
+from django.conf.urls import re_path
 from . import views
 from . import forms
 
 urlpatterns = [
-    url(r'^init/', views.InitialView.as_view(
+    re_path(r'^init/', views.InitialView.as_view(
         form_class=forms.DefaultPaymentForm,
         template_name='paymaster/init.html',
         amount_key='amount'),
         name='init'),
 
-    url(r'^confirm/', views.ConfirmView.as_view(), name='confirm'),
-    url(r'^paid/', views.NotificationView.as_view(), name='paid'),
+    re_path(r'^confirm/', views.ConfirmView.as_view(), name='confirm'),
+    re_path(r'^paid/', views.NotificationView.as_view(), name='paid'),
 
-    url(r'^success/',
+    re_path(r'^success/',
         views.SuccessView.as_view(template_name='paymaster/success.html'),
         name='success'),
 
-    url(r'^fail/',
+    re_path(r'^fail/',
         views.FailView.as_view(template_name='paymaster/fail.html'),
         name='fail'),
 ]

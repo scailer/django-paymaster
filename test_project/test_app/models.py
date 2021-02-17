@@ -7,9 +7,9 @@ from django.core.exceptions import ValidationError
 from paymaster import signals
 
 
-class User(AbstractUser):
-    phone = models.CharField('Phone', max_length=25,
-                             default='+7 (909) 123 4567')
+# class User(AbstractUser):
+#     phone = models.CharField('Phone', max_length=25,
+#                              default='+7 (909) 123 4567')
 
 
 class ActivityLog(models.Model):

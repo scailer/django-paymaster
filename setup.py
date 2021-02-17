@@ -15,7 +15,7 @@ except:
 
 setup(
     name='django-paymaster',
-    version='0.1.1',
+    version='1.0.0',
     author='Dmitriy Vlasov',
     author_email='scailer@russia.ru',
 
@@ -39,7 +39,7 @@ setup(
         u'http://github.com/scailer/django-paymaster/'
     ),
 
-    requires=['django (>= 1.5)', 'pytz', 'simple_crypt'],
+    requires=['django (>= 3.1.1)', 'pytz', 'simple_crypt'],
 
     classifiers=(
         'Development Status :: 5 - Production/Stable',

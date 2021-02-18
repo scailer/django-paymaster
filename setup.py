@@ -39,7 +39,7 @@ setup(
         u'http://github.com/scailer/django-paymaster/'
     ),
 
-    requires=['django (>= 3.1.1)', 'pytz', 'simple_crypt'],
+    requires=['django (>= 3.1.1)', 'pytz'],
 
     classifiers=(
         'Development Status :: 5 - Production/Stable',

@@ -10,7 +10,7 @@
 """
 
 import base64
-import urllib
+from urllib import parse
 import hashlib
 from datetime import datetime, timedelta
 
@@ -157,10 +157,7 @@ class InitialView(generic.FormView):
 
         data = {k: v for k, v in data.items() if v}
 
-        try:
-            return urllib.urlencode(data)
-        except AttributeError:
-            return urllib.parse.urlencode(data)
+        return parse.urlencode(data)
 
 
 class ConfirmView(utils.CSRFExempt, generic.View):

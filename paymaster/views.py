@@ -95,7 +95,7 @@ class InitialView(generic.FormView):
 
     def get_description_base64(self, form):
         """ Пререводим описание в base64 """
-        return base64.encodestring(self.get_description(form).encode('utf-8'))
+        return base64.b64encode(self.get_description(form).encode('utf-8'))
 
     def get_payer_phone(self, form):
         """ Получаем номер телефона в формате 79031234567 """
@@ -211,8 +211,8 @@ class NotificationView(utils.CSRFExempt, generic.View):
 
         hash_method = settings.PAYMASTER_HASH_METHOD
         _hash = getattr(hashlib, hash_method)(_line.encode('utf-8'))
-        _hash = base64.encodestring(_hash.digest()).replace(b'\n', b'')
-        return _hash == data.get('LMI_HASH').encode('utf-8')
+        _hash = base64.b64encode(_hash.digest())
+        return _hash == data.get('LMI_HASH', '').encode('utf-8')
 
     def post(self, request):
         if not self.check_hash(request.POST):  # Проверяем ключ
